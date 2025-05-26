@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Stock Price Aggregation</title>
+</head>
+<body>
+<h1>Stock Price Aggregation Demo</h1>
+
+
+<label for="ticker">Stock Ticker:</label>
+<input type="text" id="ticker" value="GOOG"/>
+
+<label for="minutes">Minutes:</label>
+<input type="number" id="minutes" value="60"/>
+
+<button onclick="fetchAveragePrice()">Get Average Price</button>
+
+<h2>Average Price Result:</h2>
+<div id="averageResult"></div>
+
+<hr />
+
+
+<label for="ticker1">Stock Ticker 1:</label>
+<input type="text" id="ticker1" value="GOOG"/>
+
+<label for="ticker2">Stock Ticker 2:</label>
+<input type="text" id="ticker2" value="AAPL"/>
+
+<button onclick="fetchCorrelation()">Get Correlation</button>
+
+<h2>Correlation Result:</h2>
+<div id="correlationResult"></div>
+
+<script>
+
+const API_BASE = "https://your-test-server-api"; 
+
+
+async function fetchStockHistory(ticker, minutes) {
+   
+    const now = Date.now();
+    const data = [];
+    for (let i = 0; i < minutes; i += 1) {
+        data.push({
+            timestamp: now - i * 60 * 1000,
+            price: 100 + Math.random() * 20  // Random prices for demo
+        });
+    }
+    return data;
+}
+
+async function fetchAveragePrice() {
+    const ticker = document.getElementById('ticker').value;
+    const minutes = parseInt(document.getElementById('minutes').value);
+
+    const data = await fetchStockHistory(ticker, minutes);
+    const total = data.reduce((sum, point) => sum + point.price, 0);
+    const average = total / data.length;
+
+    document.getElementById('averageResult').innerText = `Average price of ${ticker} over last ${minutes} minutes is ${average.toFixed(2)}`;
+}
+
+async function fetchCorrelation() {
+    const ticker1 = document.getElementById('ticker1').value;
+    const ticker2 = document.getElementById('ticker2').value;
+    const minutes = parseInt(document.getElementById('minutes').value);
+
+    const data1 = await fetchStockHistory(ticker1, minutes);
+    const data2 = await fetchStockHistory(ticker2, minutes);
+
+    
+    const minLen = Math.min(data1.length, data2.length);
+    const prices1 = data1.slice(0, minLen).map(p => p.price);
+    const prices2 = data2.slice(0, minLen).map(p => p.price);
+
+   
+    const correlation = calculatePearsonCorrelation(prices1, prices2)
+
+    document.getElementById('correlationResult').innerText = `Correlation between ${ticker1} and ${ticker2} over last ${minutes} minutes is ${correlation.toFixed(3)}`;
+}
+
+function calculatePearsonCorrelation(x, y) {
+    const n = x.length;
+    const sumX = x.reduce((a, b) => a + b, 0);
+    const sumY = y.reduce((a, b) => a + b, 0);
+    const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+    const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+    const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
+
+    const numerator = (n * sumXY) - (sumX * sumY);
+    const denominator = Math.sqrt(
+        ((n * sumX2) - (sumX * sumX)) *
+        ((n * sumY2) - (sumY * sumY))
+    );
+
+    if (denominator === 0) return 0; 
+    return numerator / denominator;
+}
+</script>
+
+</body>
+</html>

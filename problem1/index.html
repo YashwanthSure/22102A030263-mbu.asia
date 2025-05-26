@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Average Calculator</title>
+</head>
+<body>
+    <div style="max-width: 400px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <h1 style="text-align: center;">Average Calculator</h1>
+        <form id="number-form" style="margin-bottom: 20px;">
+            <label for="number-id">Enter Number ID (p, f, e, r):</label>
+            <input type="text" id="number-id" name="number-id">
+            <button type="submit">Calculate Average</button>
+        </form>
+        <div id="result" style="margin-top: 20px;">
+            <h2>Result:</h2>
+            <p id="window-prev-state" style="margin-bottom: 10px;"></p>
+            <p id="window-curr-state" style="margin-bottom: 10px;"></p>
+            <p id="numbers" style="margin-bottom: 10px;"></p>
+            <p id="avg" style="margin-bottom: 10px;"></p>
+        </div>
+    </div>
+<script>
+document.getElementById('number-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const numberId = document.getElementById('number-id').value.trim();
+    if (!['p', 'f', 'e', 'r'].includes(numberId)) {
+        alert('Invalid numberId');
+        return;
+    }
+    try {
+        const response = await fetch(`http://localhost:9876/numbers/${numberId}`);
+        const data = await response.json();
+        document.getElementById('window-prev-state').textContent = 'Previous State: ' + JSON.stringify(data.windowPrevState);
+        document.getElementById('window-curr-state').textContent = 'Current State: ' + JSON.stringify(data.windowCurrState);
+        document.getElementById('numbers').textContent = 'New Numbers: ' + JSON.stringify(data.numbers);
+        document.getElementById('avg').textContent = 'Average: ' + data.avg;
+    } catch (err) {
+        alert('Error fetching data');
+    }
+});
+</script>
+</body>
+</html>
+
+
+
