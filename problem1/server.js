@@ -1,12 +1,11 @@
 const express = require('express');
 const axios = require('axios');
-const cors = require('cors'); // Add this line
+const cors = require('cors'); 
 const app = express();
 const window_size = 10;
 let numbers = [];
 
-app.use(cors()); // Add this line
-
+app.use(cors()); 
 const endpoints = {
   p: 'http://20.244.56.144/test/primes',
   f: 'http://20.244.56.144/test/fibo',
